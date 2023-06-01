@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "legacy-reviver",
+  "version": "${version}",
+  "name": "Legacy Reviver",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "GPL-3.0",
+  "icon": "assets/legacy-reviver/logo.png",
+  "environment": "*",
+  "accessWidener": "legacy-reviver.accesswidener",
+  "entrypoints": {
+    "client": [
+      "com.atlas.legacy.legacyreviver.client.LegacyReviverClient"
+    ],
+    "main": [
+      "com.atlas.legacy.legacyreviver.LegacyReviver"
+    ]
+  },
+  "mixins": [
+    "legacy-reviver.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.13",
+    "fabric": "*",
+    "minecraft": "1.19.3"
+  }
+}
