@@ -33,10 +33,6 @@ public abstract class MinecartMixin extends Entity {
     public void redirectSpeed3(AbstractMinecartEntity instance, Vec3d vec3d) {
         modSpeed(instance, vec3d);
     }
-    @ModifyConstant(method = "moveOnRail", constant = @Constant(doubleValue = 0.1))
-    public double modifyInheritedSpeed(double constant) {
-        return constant;
-    }
     @ModifyConstant(method = "moveOnRail", constant = @Constant(doubleValue = 0.06))
     public double modifyPoweredSpeed(double constant) {
         return constant / 2;

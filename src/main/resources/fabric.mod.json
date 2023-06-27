@@ -22,8 +22,8 @@
     "legacy-reviver.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.14.13",
+    "fabricloader": ">=0.14.21",
     "fabric": "*",
-    "minecraft": "1.19.3"
+    "minecraft": ">=1.20"
   }
 }

@@ -2,13 +2,13 @@ package com.atlas.legacy.legacyreviver.mixin;
 
 import com.atlas.legacy.legacyreviver.extensions.IJukebox;
 import com.atlas.legacy.legacyreviver.item.ExtendedDiscItem;
-import net.minecraft.block.entity.JukeboxBlockEntity;
+import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.item.Item;
 import net.minecraft.item.MusicDiscItem;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,7 +28,10 @@ public abstract class WorldRendererMixin {
     @Inject(method = "processWorldEvent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;playSong(Lnet/minecraft/sound/SoundEvent;Lnet/minecraft/util/math/BlockPos;)V", ordinal = 0), cancellable = true)
     public void injectDog(int eventId, BlockPos pos, int data, CallbackInfo ci) {
         SoundEvent sound;
-        if(world.getBlockEntity(pos) instanceof IJukebox jukebox && jukebox.isSong1Finished() && Item.byRawId(data) instanceof ExtendedDiscItem discItem) {
+        IJukebox jukebox;
+        jukebox = (IJukebox) world.getBlockEntity(pos);
+        if(jukebox.isSong1Finished() && Item.byRawId(data) instanceof ExtendedDiscItem) {
+            ExtendedDiscItem discItem = (ExtendedDiscItem) Item.byRawId(data);
             secondDisc = true;
             sound = discItem.followingSound;
         } else {
@@ -38,10 +41,14 @@ public abstract class WorldRendererMixin {
         this.playSong(sound, pos);
         ci.cancel();
     }
-    @Redirect(method = "playSong", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/MusicDiscItem;getDescription()Lnet/minecraft/text/MutableText;"))
-    public MutableText getDesc(MusicDiscItem instance) {
-        if(instance instanceof ExtendedDiscItem discItem && secondDisc)
-            return discItem.getSoundBDescription();
-        return instance.getDescription();
+    @Redirect(method = "playSong", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/MusicDiscItem;bySound(Lnet/minecraft/sound/SoundEvent;)Lnet/minecraft/item/MusicDiscItem;"))
+    public MusicDiscItem getDesc(SoundEvent sound) {
+        return ExtendedDiscItem.bySound(sound, secondDisc);
+    }
+    @Redirect(method = "playSong", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;setRecordPlayingOverlay(Lnet/minecraft/text/Text;)V"))
+    public void getDesc(InGameHud instance, Text description) {
+        if(secondDisc)
+            return;
+        instance.setRecordPlayingOverlay(description);
     }
 }
