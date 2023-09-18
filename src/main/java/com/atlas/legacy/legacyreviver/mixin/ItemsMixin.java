@@ -2,33 +2,28 @@ package com.atlas.legacy.legacyreviver.mixin;
 
 import com.atlas.legacy.legacyreviver.LegacyReviver;
 import com.atlas.legacy.legacyreviver.item.ExtendedDiscItem;
-import com.mojang.serialization.Lifecycle;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
-import net.minecraft.registry.MutableRegistry;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Rarity;
-import org.spongepowered.asm.mixin.Final;
+import net.minecraft.item.MusicDiscItem;
+import net.minecraft.sound.SoundEvent;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Slice;
 
 @Mixin(Items.class)
 public abstract class ItemsMixin {
-    @Shadow
-    @Final
-    @Mutable
-    public static Item MUSIC_DISC_CAT = registrySet(1123, "music_disc_cat", new ExtendedDiscItem(2,
-            SoundEvents.MUSIC_DISC_CAT,
-            LegacyReviver.MUSIC_DISC_DOG,
-            new Item.Settings().maxCount(1).rarity(Rarity.RARE),
-            185,
-            145));
-    private static Item registrySet(int rawId, String id, Item attribute) {
-        return ((MutableRegistry<Item>)Registries.ITEM).set(rawId, RegistryKey.of(Registries.ITEM.getKey(), new Identifier(id)), attribute, Lifecycle.stable()).value();
+    @Redirect(
+        method = "<clinit>",
+        at = @At(value = "NEW", target = "(ILnet/minecraft/sound/SoundEvent;Lnet/minecraft/item/Item$Settings;I)Lnet/minecraft/item/MusicDiscItem;"),
+        slice = @Slice(
+            from = @At(value = "FIELD", target = "Lnet/minecraft/item/Items;MUSIC_DISC_13:Lnet/minecraft/item/Item;", opcode = Opcodes.PUTSTATIC),
+            to = @At(value = "FIELD", target = "Lnet/minecraft/item/Items;MUSIC_DISC_CAT:Lnet/minecraft/item/Item;", opcode = Opcodes.PUTSTATIC)
+        ),
+        require = 1
+    )
+    private static MusicDiscItem replaceMusicDiscCatItem(int comparatorOutput, SoundEvent sound, Item.Settings settings, int lengthInSeconds) {
+        return new ExtendedDiscItem(comparatorOutput, sound, LegacyReviver.MUSIC_DISC_DOG, settings, lengthInSeconds, 145);
     }
 }
